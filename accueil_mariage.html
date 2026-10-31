@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>Accueil Mariage — Gestion des invités</title>
+<style>
+:root{--navy:#101827;--navy2:#17243a;--gold:#d8b56d;--cream:#f7f4ed;--ink:#202838;--muted:#788294;--line:#e8e5dd;--green:#21845b}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(135deg,var(--navy),#24334b);color:white;padding:28px 20px 34px}
+.wrap{max-width:1050px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.brand{font-size:12px;letter-spacing:2px;color:var(--gold);font-weight:800;text-transform:uppercase}
+h1{font-family:Georgia,serif;font-weight:500;font-size:clamp(28px,5vw,42px);margin:13px 0 5px}
+.sub{color:#c4cbd5;margin:0;font-size:14px}.event{color:var(--gold);font-size:12px;letter-spacing:1px}
+main{max-width:1050px;margin:-18px auto 50px;padding:0 18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{background:white;border:1px solid var(--line);border-radius:16px;padding:17px 18px;box-shadow:0 8px 24px #18243a0a}
+.stat small{color:var(--muted);font-size:12px}.num{font-size:27px;font-weight:750;margin-top:5px}.green{color:var(--green)}
+.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:20px;margin-top:16px;box-shadow:0 8px 24px #18243a0a}
+.panelhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}
+h2{font-size:17px;margin:0}.hint{font-size:12px;color:var(--muted);margin-top:5px}
+.controls{display:flex;gap:10px;flex-wrap:wrap}
+input,select{font:inherit;border:1px solid #ddd9d0;border-radius:11px;padding:12px 13px;background:#fff;color:var(--ink);min-width:0}
+input:focus,select:focus{outline:2px solid #d8b56d66;border-color:var(--gold)}
+#search{flex:1;min-width:210px}.addrow{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;margin-top:13px}
+button{font:inherit;border:0;border-radius:11px;padding:12px 16px;font-weight:700;cursor:pointer}
+.primary{background:var(--navy);color:white}.primary:hover{background:#263854}
+.goldbtn{background:var(--gold);color:#172033}.soft{background:#f1eee7;color:#354052}
+.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:520px}
+th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.8px;padding:12px 10px;border-bottom:1px solid var(--line)}
+td{padding:14px 10px;border-bottom:1px solid #f0eee9;font-size:14px}
+tr:last-child td{border-bottom:0}.guestname{font-weight:650}.group{color:var(--muted);font-size:12px}
+.check{width:21px;height:21px;accent-color:var(--green);cursor:pointer}
+.status{display:inline-flex;align-items:center;gap:6px;border-radius:30px;padding:6px 10px;font-size:11px;font-weight:700;background:#f1f2f4;color:#667085}
+.status.in{background:#e6f4ed;color:#18734d}
+.actions{display:flex;gap:7px}.iconbtn{padding:7px 9px;background:#f4f2ed;color:#586174}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.footer{font-size:11px;color:var(--muted);text-align:center;padding:22px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#17243a;color:white;padding:11px 16px;border-radius:30px;font-size:13px;opacity:0;pointer-events:none;transition:.2s}
+.toast.show{opacity:1}
+@media(max-width:650px){header{padding:22px 18px 30px}.stats{gap:8px}.stat{padding:13px 11px}.num{font-size:23px}.stat small{font-size:10px}.panel{padding:15px}.addrow{grid-template-columns:1fr 1fr}.addrow button{grid-column:1/-1}.panelhead{align-items:flex-start;flex-direction:column}.controls{width:100%}#search{width:100%;flex-basis:100%}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><div class="brand">Accueil & organisation</div><div class="event">ÉDITION MARIAGE</div></div>
+  <h1>Liste des invités</h1><p class="sub">Un accueil élégant, une entrée bien organisée.</p>
+</div></header>
+<main>
+  <section class="stats">
+    <div class="stat"><small>Invités inscrits</small><div class="num" id="total">0</div></div>
+    <div class="stat"><small>Déjà arrivés</small><div class="num green" id="arrived">0</div></div>
+    <div class="stat"><small>Encore attendus</small><div class="num" id="waiting">0</div></div>
+  </section>
+  <section class="panel">
+    <div class="panelhead"><div><h2>Ajouter un invité</h2><div class="hint">Enregistrez les noms avant le début de la cérémonie.</div></div></div>
+    <form id="addForm" class="addrow">
+      <input id="name" placeholder="Nom et prénom de l'invité" required maxlength="90">
+      <input id="group" placeholder="Famille / groupe (facultatif)" maxlength="60">
+      <button class="goldbtn" type="submit">＋ Ajouter</button>
+    </form>
+  </section>
+  <section class="panel">
+    <div class="panelhead">
+      <div><h2>Contrôle des arrivées</h2><div class="hint">Recherchez un nom puis cochez son arrivée lorsqu'il se présente.</div></div>
+      <button class="soft" id="export">↓ Exporter CSV</button>
+    </div>
+    <div class="controls">
+      <input id="search" type="search" placeholder="⌕ Rechercher un invité...">
+      <select id="filter" aria-label="Filtrer les invités"><option value="all">Tous les invités</option><option value="waiting">Pas encore arrivés</option><option value="arrived">Déjà arrivés</option></select>
+    </div>
+    <div class="tablewrap" style="margin-top:12px">
+      <table><thead><tr><th>Arrivée</th><th>Nom de l'invité</th><th>Groupe</th><th>Statut</th><th>Action</th></tr></thead><tbody id="rows"></tbody></table>
+      <div id="empty" class="empty" hidden>Aucun invité trouvé.</div>
+    </div>
+  </section>
+  <div class="footer">Les données sont conservées sur cet appareil. Pensez à exporter une copie de votre liste.</div>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+let guests=[];
+try{guests=JSON.parse(localStorage.getItem('mariage_guests_v1')||'[]')}catch(e){guests=[]}
+const save=()=>localStorage.setItem('mariage_guests_v1',JSON.stringify(guests));
+const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function notify(msg){$('toast').textContent=msg;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1900)}
+function render(){
+ const total=guests.length,arr=guests.filter(g=>g.arrived).length;
+ $('total').textContent=total;$('arrived').textContent=arr;$('waiting').textContent=total-arr;
+ const q=$('search').value.trim().toLocaleLowerCase('fr'),f=$('filter').value;
+ const list=guests.filter(g=>(g.name+' '+g.group).toLocaleLowerCase('fr').includes(q)&&(f==='all'||(f==='arrived'?g.arrived:!g.arrived)));
+ $('rows').innerHTML=list.map(g=>`<tr>
+ <td><input class="check" type="checkbox" aria-label="Marquer ${safe(g.name)} comme arrivé" data-check="${g.id}" ${g.arrived?'checked':''}></td>
+ <td class="guestname">${safe(g.name)}</td><td class="group">${safe(g.group||'—')}</td>
+ <td><span class="status ${g.arrived?'in':''}">${g.arrived?'✓ Présent':'En attente'}</span></td>
+ <td><div class="actions"><button class="iconbtn" title="Supprimer" aria-label="Supprimer ${safe(g.name)}" data-delete="${g.id}">✕</button></div></td>
+ </tr>`).join('');
+ $('empty').hidden=list.length!==0;
+}
+$('addForm').addEventListener('submit',e=>{e.preventDefault();const name=$('name').value.trim();if(!name)return;
+ guests.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),name,group:$('group').value.trim(),arrived:false});
+ save();$('name').value='';$('group').value='';$('name').focus();render();notify('Invité ajouté à la liste.')});
+$('search').addEventListener('input',render);$('filter').addEventListener('change',render);
+$('rows').addEventListener('change',e=>{const id=e.target.dataset.check;if(!id)return;const g=guests.find(x=>x.id===id);if(g){g.arrived=e.target.checked;save();render();notify(g.arrived?'Arrivée confirmée.':'Statut remis en attente.')}});
+$('rows').addEventListener('click',e=>{const id=e.target.dataset.delete;if(!id)return;const g=guests.find(x=>x.id===id);if(g&&confirm('Supprimer '+g.name+' de la liste ?')){guests=guests.filter(x=>x.id!==id);save();render();notify('Invité supprimé.')}});
+$('export').addEventListener('click',()=>{const rows=[['Nom','Groupe','Statut'],...guests.map(g=>[g.name,g.group,g.arrived?'Présent':'En attente'])];const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));a.download='liste-invites-mariage.csv';a.click();URL.revokeObjectURL(a.href);});
+render();
+</script>
+</body></html>

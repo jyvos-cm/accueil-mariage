@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5f7fb"><title>ACCUEIL MARIAGE — Gestion des invités</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--blue:#175cd3;--blue2:#1246a8;--ink:#172033;--muted:#667085;--line:#e5eaf2;--bg:#f5f7fb;--white:#fff;--green:#16845b;--red:#c43d4b;--soft:#eaf1ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:11px 15px;font-weight:650}
+.primary{background:var(--blue);color:white}.primary:hover{background:var(--blue2)}.secondary{background:#edf2f8;color:#344054}.danger{background:#fff0f1;color:var(--red)}
+input,select,textarea{border:1px solid #d8dfeb;border-radius:10px;padding:12px;background:#fff;color:var(--ink);width:100%;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px #175cd31a}
+label{display:block;font-size:12px;font-weight:650;color:#475467;margin:0 0 6px}
+.muted{color:var(--muted)}.small{font-size:12px}.hidden{display:none!important}
+.auth{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 80% 10%,#dce8ff,transparent 35%),var(--bg)}
+.auth-card{width:min(440px,100%);background:white;border:1px solid var(--line);border-radius:22px;padding:30px;box-shadow:0 20px 60px #18315c12}
+.logo{width:42px;height:42px;border-radius:13px;background:var(--blue);color:white;display:grid;place-items:center;font-weight:900;font-size:18px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.3px}
+h1{font-size:25px;margin:22px 0 5px}h2{font-size:17px;margin:0}h3{font-size:14px;margin:0}
+.field{margin-top:14px}.auth-actions{display:flex;gap:9px;margin-top:18px}.auth-actions button{flex:1}
+#app{min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:245px;background:#fff;border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;z-index:3}
+.sidebar .brand{padding:0 8px 28px}.navlabel{font-size:10px;letter-spacing:1.4px;color:#98a2b3;font-weight:800;padding:10px}
+.navitem{display:flex;align-items:center;gap:11px;padding:12px;border-radius:10px;color:#475467;margin:2px 0;font-weight:600;cursor:pointer}
+.navitem.active{background:var(--soft);color:var(--blue)}.navitem span{font-size:17px;width:20px;text-align:center}
+.sidebottom{margin-top:auto;border-top:1px solid var(--line);padding:14px 7px 0}
+.main{margin-left:245px;min-height:100vh}.topbar{height:68px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:2}
+.topright{display:flex;align-items:center;gap:12px}.avatar{width:34px;height:34px;background:#e9efff;color:var(--blue);border-radius:50%;display:grid;place-items:center;font-weight:800}
+.content{max-width:1250px;margin:auto;padding:28px 30px 50px}.eyebrow{font-size:11px;color:var(--blue);letter-spacing:1.3px;font-weight:800;text-transform:uppercase;margin-bottom:8px}
+.heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:22px}.heading p{color:var(--muted);margin:7px 0 0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat,.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:0 3px 12px #1c315008}
+.stat-label{color:var(--muted);font-size:12px}.stat-num{font-size:27px;font-weight:800;margin-top:8px;letter-spacing:-.7px}.stat-note{font-size:11px;color:#98a2b3;margin-top:3px}
+.grid2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.8fr);gap:16px}
+.cardhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.searchrow{display:flex;gap:9px;margin-bottom:14px}.searchrow input{flex:1}.searchrow select{width:165px}
+.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:600px}th{text-align:left;color:#98a2b3;font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding:11px 10px;border-bottom:1px solid var(--line)}td{padding:13px 10px;border-bottom:1px solid #eef1f6}tr:last-child td{border:0}
+.guest{font-weight:700}.subline{font-size:11px;color:var(--muted);margin-top:3px}.pill{display:inline-flex;padding:5px 9px;border-radius:30px;font-size:11px;font-weight:750;background:#f0f2f5;color:#667085}.pill.present{background:#e7f7ef;color:#16764f}
+.checkbtn{background:#eaf7f0;color:#13754d;padding:8px 11px;font-size:12px}.undo{background:#f1f3f6;color:#475467;padding:8px 11px;font-size:12px}
+.empty{text-align:center;padding:35px;color:#98a2b3}.progress{height:8px;background:#edf1f6;border-radius:20px;overflow:hidden;margin:12px 0}.progress>div{height:100%;background:var(--blue);border-radius:20px}
+.quick{display:grid;gap:10px}.quick button{width:100%;text-align:left}.quick .secondary{background:#f5f7fb}
+.modalback{position:fixed;inset:0;background:#10182880;display:grid;place-items:center;padding:18px;z-index:10}
+.modal{background:#fff;border-radius:18px;padding:22px;width:min(500px,100%);max-height:90vh;overflow:auto;box-shadow:0 25px 80px #0003}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#172033;color:#fff;border-radius:30px;padding:12px 18px;z-index:20;box-shadow:0 5px 20px #0002}
+.configwarn{background:#fff7e8;border:1px solid #f4d59b;color:#805b14;border-radius:12px;padding:13px;margin:15px 0;font-size:12px}
+.mobilehead{display:none}
+@media(max-width:900px){.sidebar{width:205px}.main{margin-left:205px}.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}}
+@media(max-width:650px){.sidebar{display:none}.main{margin:0}.topbar{padding:0 16px;height:60px}.content{padding:22px 14px 40px}.heading{flex-direction:column}.stats{gap:9px}.stat{padding:14px}.stat-num{font-size:23px}.searchrow{flex-direction:column}.searchrow select{width:100%}.mobilehead{display:block}.topbar .eventname{font-size:12px;max-width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+</style></head>
+<body>
+<section id="auth" class="auth">
+ <div class="auth-card">
+  <div class="brand"><div class="logo">A</div><div>ACCUEIL MARIAGE<div class="small muted" style="font-weight:500">Gestion professionnelle des invités</div></div></div>
+  <h1>Bienvenue</h1><p class="muted">Connectez-vous pour gérer les arrivées de votre événement.</p>
+  <div class="configwarn" id="configWarn">Configuration requise : ajoutez l'URL et la clé publique de votre projet Supabase dans le fichier, puis exécutez le script SQL fourni.</div>
+  <div class="field"><label>Adresse e-mail</label><input id="email" type="email" placeholder="vous@exemple.com" autocomplete="email"></div>
+  <div class="field"><label>Mot de passe</label><input id="password" type="password" placeholder="Votre mot de passe" autocomplete="current-password"></div>
+  <div class="auth-actions"><button class="primary" id="login">Se connecter</button><button class="secondary" id="signup">Créer un compte</button></div>
+  <p class="small muted" id="authMsg" style="margin-top:15px"></p>
+ </div>
+</section>
+<div id="app" class="hidden">
+ <aside class="sidebar">
+  <div class="brand"><div class="logo">A</div><div>ACCUEIL MARIAGE<div class="small muted" style="font-weight:500">ESPACE ÉVÉNEMENT</div></div></div>
+  <div class="navlabel">MENU PRINCIPAL</div>
+  <div class="navitem active"><span>▦</span> Tableau de bord</div>
+  <div class="navitem"><span>♙</span> Liste des invités</div>
+  <div class="navitem"><span>◷</span> Historique des entrées</div>
+  <div class="navitem"><span>⚙</span> Paramètres</div>
+  <div class="sidebottom"><div class="small muted" id="sideEmail"></div><button class="secondary" id="logout" style="width:100%;margin-top:10px">Se déconnecter</button></div>
+ </aside>
+ <div class="main">
+  <div class="topbar"><div class="mobilehead brand"><div class="logo">A</div> ACCUEIL MARIAGE</div><div class="eventname" id="eventNameTop">Événement</div><div class="topright"><span class="small muted" id="syncState">● Synchronisé</span><div class="avatar" id="avatar">A</div></div></div>
+  <div class="content">
+   <div class="heading"><div><div class="eyebrow">Vue d'ensemble</div><h1 style="margin:0">Tableau de bord</h1><p>Suivez les arrivées en direct et gérez votre accueil.</p></div><button class="primary" id="addGuestBtn">＋ Ajouter un invité</button></div>
+   <div class="stats">
+    <div class="stat"><div class="stat-label">Invités enregistrés</div><div class="stat-num" id="total">0</div><div class="stat-note">Dans la liste de l'événement</div></div>
+    <div class="stat"><div class="stat-label">Invités présents</div><div class="stat-num" id="present">0</div><div class="stat-note">Arrivées confirmées</div></div>
+    <div class="stat"><div class="stat-label">Invités attendus</div><div class="stat-num" id="pending">0</div><div class="stat-note">Pas encore enregistrés à l'entrée</div></div>
+    <div class="stat"><div class="stat-label">Taux de présence</div><div class="stat-num" id="rate">0%</div><div class="stat-note">Présents / invités enregistrés</div></div>
+   </div>
+   <div class="grid2">
+    <section class="card">
+     <div class="cardhead"><div><h2>Contrôle des arrivées</h2><div class="small muted" style="margin-top:4px">Recherche rapide parmi vos invités</div></div><button class="secondary" id="importBtn">Importer</button></div>
+     <div class="searchrow"><input id="search" placeholder="⌕  Rechercher un nom, prénom ou groupe..."><select id="filter"><option value="all">Tous les statuts</option><option value="pending">En attente</option><option value="present">Présents</option></select></div>
+     <div class="tablewrap"><table><thead><tr><th>Invité</th><th>Groupe / table</th><th>Statut</th><th>Action</th></tr></thead><tbody id="guestRows"></tbody></table><div id="empty" class="empty hidden">Aucun invité ne correspond à votre recherche.</div></div>
+    </section>
+    <aside class="card">
+     <div class="cardhead"><div><h2>Progression des arrivées</h2><div class="small muted" style="margin-top:4px">Actualisation en temps réel</div></div></div>
+     <div style="display:flex;justify-content:space-between;align-items:end"><div class="stat-num" id="progressRate">0%</div><div class="small muted" id="progressCount">0 sur 0</div></div>
+     <div class="progress"><div id="progressBar" style="width:0%"></div></div>
+     <div class="quick"><button class="secondary" id="copyCode">▣ Copier le code de l'événement</button><button class="secondary" id="exportBtn">↓ Exporter la liste CSV</button><button class="secondary" id="agentInfo">＋ Ajouter un agent d'accueil</button></div>
+     <div class="configwarn" style="margin-top:16px;margin-bottom:0">Les agents rejoignent cet événement avec son code depuis leur propre compte.</div>
+    </aside>
+   </div>
+  </div>
+ </div>
+</div>
+<div id="modalRoot"></div><div id="toast" class="toast hidden"></div>
+<script>
+// 1) Remplacez ces deux valeurs par les informations de votre projet Supabase.
+const SUPABASE_URL = "VOTRE_URL_SUPABASE";
+const SUPABASE_ANON_KEY = "VOTRE_CLE_PUBLIQUE_SUPABASE";
+let db=null,user=null,event=null,guests=[],channel=null,role="admin";
+const $=id=>document.getElementById(id);
+const configured=SUPABASE_URL.startsWith("https://")&&!SUPABASE_ANON_KEY.startsWith("VOTRE_");
+if(configured){db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);$("configWarn").classList.add("hidden")}
+function toast(s){$("toast").textContent=s;$("toast").classList.remove("hidden");setTimeout(()=>$("toast").classList.add("hidden"),2600)}
+function msg(s){$("authMsg").textContent=s}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+async function authAction(kind){if(!db){msg("L'application doit d'abord être reliée à Supabase. Consultez le guide d'installation.");return}
+ const email=$("email").value.trim(),password=$("password").value;if(!email||!password){msg("Saisissez votre e-mail et votre mot de passe.");return}
+ msg("Veuillez patienter…");const r=kind==="login"?await db.auth.signInWithPassword({email,password}):await db.auth.signUp({email,password});
+ if(r.error){msg(r.error.message);return}if(kind==="signup"&&!r.data.session){msg("Compte créé. Vérifiez votre e-mail pour confirmer l'inscription.");return}user=r.data.user;await boot()}
+$("login").onclick=()=>authAction("login");$("signup").onclick=()=>authAction("signup");
+$("logout").onclick=async()=>{if(channel)await db.removeChannel(channel);await db.auth.signOut();location.reload()};
+async function boot(){if(!db)return;const {data}=await db.auth.getSession();if(!data.session)return;user=data.session.user;
+ $("auth").classList.add("hidden");$("app").classList.remove("hidden");$("sideEmail").textContent=user.email;$("avatar").textContent=(user.email||"A")[0].toUpperCase();
+ await loadEvent()}
+async function loadEvent(){let r=await db.from("event_members").select("event_id,role,events(id,title,event_date,join_code)").eq("user_id",user.id).limit(1).maybeSingle();
+ if(r.error){toast("Erreur de chargement : "+r.error.message);return}
+ if(!r.data){showEventSetup();return}
+ event=r.data.events;role=r.data.role;$("eventNameTop").textContent=event.title;$("copyCode").textContent="▣ Code : "+event.join_code;await loadGuests();subscribe()}
+function showEventSetup(){ $("modalRoot").innerHTML=`<div class="modalback"><div class="modal"><h2>Bienvenue dans ACCUEIL MARIAGE</h2><p class="muted">Créez un événement ou rejoignez celui de votre équipe avec un code.</p><div class="field"><label>Nom du mariage / événement</label><input id="newTitle" placeholder="Ex. Mariage de Marie & Paul"></div><div class="field"><label>Date (facultatif)</label><input id="newDate" type="date"></div><button class="primary" id="createEvent" style="width:100%;margin-top:14px">Créer mon événement</button><div style="text-align:center;margin:14px;color:#98a2b3">OU</div><div class="field"><label>Code fourni par l'organisateur</label><input id="joinCode" placeholder="Code de l'événement"></div><button class="secondary" id="joinEvent" style="width:100%;margin-top:10px">Rejoindre comme agent</button><p class="small muted" id="setupMsg"></p></div></div>`;
+ $("createEvent").onclick=async()=>{const title=$("newTitle").value.trim();if(!title)return $("setupMsg").textContent="Entrez le nom de l'événement.";let x=await db.rpc("create_wedding_event",{p_title:title,p_event_date:$("newDate").value||null});if(x.error){$("setupMsg").textContent=x.error.message;return}event=x.data;await loadEvent()};
+ $("joinEvent").onclick=async()=>{let code=$("joinCode").value.trim();let x=await db.rpc("join_wedding_event",{p_code:code});if(x.error){$("setupMsg").textContent=x.error.message;return}await loadEvent()}}
+async function loadGuests(){let r=await db.from("guests").select("id,full_name,group_name,table_number,created_at,checkins(id,checked_in_at,checked_in_by)").eq("event_id",event.id).order("full_name");if(r.error){toast(r.error.message);return}guests=r.data||[];render()}
+function subscribe(){if(channel)db.removeChannel(channel);channel=db.channel("event-"+event.id).on("postgres_changes",{event:"*",schema:"public",table:"guests",filter:"event_id=eq."+event.id},loadGuests).on("postgres_changes",{event:"*",schema:"public",table:"checkins"},loadGuests).subscribe(status=>{$("syncState").textContent=status==="SUBSCRIBED"?"● En direct":"● Connexion…";$("syncState").style.color=status==="SUBSCRIBED"?"#16845b":"#b7791f"})}
+function render(){let n=guests.length,p=guests.filter(g=>g.checkins?.length).length,pct=n?Math.round(p/n*100):0;$("total").textContent=n;$("present").textContent=p;$("pending").textContent=n-p;$("rate").textContent=pct+"%";$("progressRate").textContent=pct+"%";$("progressCount").textContent=p+" sur "+n;$("progressBar").style.width=pct+"%";
+ const q=$("search").value.trim().toLocaleLowerCase("fr"),f=$("filter").value;let list=guests.filter(g=>(g.full_name+" "+(g.group_name||"")+" "+(g.table_number||"")).toLocaleLowerCase("fr").includes(q)&&(f==="all"||(f==="present"?!!g.checkins?.length:!g.checkins?.length)));
+ $("guestRows").innerHTML=list.map(g=>{let yes=!!g.checkins?.length;return `<tr><td><div class="guest">${esc(g.full_name)}</div><div class="subline">${yes&&g.checkins[0].checked_in_at?"Arrivé à "+new Date(g.checkins[0].checked_in_at).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):"Invité enregistré"}</div></td><td>${esc(g.group_name||"—")}<div class="subline">${g.table_number?"Table "+esc(g.table_number):""}</div></td><td><span class="pill ${yes?"present":""}">${yes?"✓ Présent":"En attente"}</span></td><td>${yes?`<button class="undo" data-undo="${g.id}">Annuler</button>`:`<button class="checkbtn" data-check="${g.id}">✓ Valider</button>`}</td></tr>`}).join("");$("empty").classList.toggle("hidden",list.length>0)}
+$("search").addEventListener("input",render);$("filter").addEventListener("change",render);
+$("guestRows").addEventListener("click",async e=>{let id=e.target.dataset.check||e.target.dataset.undo;if(!id)return;let g=guests.find(x=>x.id===id);if(e.target.dataset.check){let r=await db.from("checkins").insert({event_id:event.id,guest_id:id,checked_in_by:user.id});if(r.error)toast(r.error.message);else toast("Arrivée de "+g.full_name+" confirmée.")}else{let r=await db.from("checkins").delete().eq("guest_id",id).eq("event_id",event.id);if(r.error)toast(r.error.message);else toast("Arrivée annulée.")}await loadGuests()});
+function modal(title,body){$("modalRoot").innerHTML=`<div class="modalback" id="backdrop"><div class="modal"><div class="modalhead"><h2>${title}</h2><button class="secondary" id="closeModal">✕</button></div>${body}</div></div>`;$("closeModal").onclick=()=>$("modalRoot").innerHTML="";$("backdrop").onclick=e=>{if(e.target.id==="backdrop")$("modalRoot").innerHTML=""}}
+$("addGuestBtn").onclick=()=>openAdd();function openAdd(){if(role!=="admin"){toast("Seul l'administrateur peut modifier la liste.");return}modal("Ajouter des invités",`<div class="field"><label>Nom complet</label><input id="gName" placeholder="Nom et prénom"></div><div class="field"><label>Famille / groupe</label><input id="gGroup" placeholder="Facultatif"></div><div class="field"><label>Numéro de table</label><input id="gTable" placeholder="Facultatif"></div><button class="primary" id="saveGuest" style="width:100%;margin-top:16px">Enregistrer l'invité</button><p id="modalMsg" class="small muted"></p>`);$("saveGuest").onclick=async()=>{let name=$("gName").value.trim();if(!name)return $("modalMsg").textContent="Le nom est obligatoire.";let r=await db.from("guests").insert({event_id:event.id,full_name:name,group_name:$("gGroup").value.trim()||null,table_number:$("gTable").value.trim()||null});if(r.error){$("modalMsg").textContent=r.error.message;return}$("modalRoot").innerHTML="";toast("Invité ajouté.");await loadGuests()}}
+$("importBtn").onclick=()=>{if(role!=="admin"){toast("Seul l'administrateur peut importer la liste.");return}modal("Importer la liste WhatsApp",`<p class="muted small">Collez les noms copiés depuis WhatsApp. Un invité par ligne. Vous pouvez aussi importer un fichier CSV avec une colonne Nom.</p><div class="field"><label>Liste des invités</label><textarea id="bulkNames" rows="8" placeholder="Jean Dupont&#10;Marie Ekotto&#10;Paul et famille"></textarea></div><div class="field"><label>Ou choisir un fichier CSV</label><input id="csvFile" type="file" accept=".csv,text/csv"></div><button class="primary" id="doImport" style="width:100%;margin-top:14px">Importer les invités</button><p id="importMsg" class="small muted"></p>`);$("csvFile").onchange=async e=>{let f=e.target.files[0];if(f)$("bulkNames").value=(await f.text()).split(/\r?\n/).map(x=>x.split(/[;,]/)[0].replace(/^"|"$/g,"").trim()).filter(Boolean).join("\n")};$("doImport").onclick=async()=>{let names=$("bulkNames").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!names.length)return $("importMsg").textContent="Aucun nom détecté.";let existing=new Set(guests.map(g=>g.full_name.toLocaleLowerCase("fr")));let unique=[...new Set(names)].filter(n=>!existing.has(n.toLocaleLowerCase("fr")));if(!unique.length)return $("importMsg").textContent="Aucun nouveau nom à importer.";let payload=unique.map(full_name=>({event_id:event.id,full_name}));let r=await db.from("guests").insert(payload);if(r.error){$("importMsg").textContent=r.error.message;return}$("modalRoot").innerHTML="";toast(unique.length+" invités importés.");await loadGuests()}}
+$("copyCode").onclick=async()=>{await navigator.clipboard.writeText(event.join_code);toast("Code copié : "+event.join_code)};
+$("exportBtn").onclick=()=>{let lines=[["Nom","Groupe","Table","Statut","Heure arrivée"],...guests.map(g=>[g.full_name,g.group_name||"",g.table_number||"",g.checkins?.length?"Présent":"En attente",g.checkins?.[0]?.checked_in_at||""])];let csv="\ufeff"+lines.map(row=>row.map(x=>'"'+String(x).replace(/"/g,'""')+'"').join(";")).join("\r\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="invites-mariage.csv";a.click();URL.revokeObjectURL(a.href)};
+$("agentInfo").onclick=()=>modal("Ajouter un agent d'accueil",`<p>Communiquez le code ci-dessous à chaque agent. Il doit créer son compte, puis choisir « Rejoindre comme agent ».</p><div style="font-size:25px;font-weight:850;letter-spacing:3px;text-align:center;padding:20px;background:#f2f6ff;border-radius:12px">${esc(event.join_code)}</div><button class="primary" id="copyAgent" style="width:100%;margin-top:12px">Copier le code</button>`),setTimeout(()=>{if($("copyAgent"))$("copyAgent").onclick=()=>$("copyCode").click()},0);
+if(db)db.auth.onAuthStateChange((_event,session)=>{if(session&&!user){user=session.user;boot()}});
+boot();
+</script></body></html>

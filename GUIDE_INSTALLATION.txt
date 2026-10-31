@@ -1,0 +1,39 @@
+ACCUEIL MARIAGE — INSTALLATION ET MISE EN LIGNE
+
+FICHIERS
+- accueil_mariage_pro.html : application web.
+- supabase_setup.sql : tables, rôles, règles de sécurité et fonctions en ligne.
+
+ÉTAPE 1 — CRÉER LE BACKEND
+1. Créez un projet sur https://supabase.com
+2. Dans le projet, ouvrez SQL Editor.
+3. Collez tout le contenu de supabase_setup.sql puis cliquez sur Run.
+4. Dans Project Settings > API, copiez Project URL et anon/public key.
+
+ÉTAPE 2 — CONNECTER L'APPLICATION
+1. Ouvrez accueil_mariage_pro.html avec un éditeur de texte.
+2. Repérez en haut du script :
+   const SUPABASE_URL = "VOTRE_URL_SUPABASE";
+   const SUPABASE_ANON_KEY = "VOTRE_CLE_PUBLIQUE_SUPABASE";
+3. Remplacez les deux valeurs par celles de votre projet Supabase.
+   N'utilisez JAMAIS la clé service_role dans le navigateur.
+4. Enregistrez le fichier.
+
+ÉTAPE 3 — PUBLIER LE SITE
+Publiez le fichier HTML sur un hébergeur HTTPS (par exemple Netlify, Vercel ou GitHub Pages).
+Tous les téléphones doivent ouvrir la même adresse web.
+
+UTILISATION
+- L'organisateur crée son compte, se connecte et crée un événement.
+- Il communique le code de l'événement aux agents.
+- Chaque agent crée son propre compte puis rejoint l'événement avec ce code.
+- L'organisateur importe la liste copiée depuis WhatsApp (un nom par ligne) ou un CSV.
+- À l'entrée, l'agent recherche le nom et clique sur « Valider ».
+- La présence est enregistrée en ligne et les autres appareils se mettent à jour.
+- Le bouton Exporter produit un CSV ouvrable dans Excel.
+
+NOTES
+- Cette version est un MVP web connecté à Supabase : le déploiement et la configuration Supabase sont nécessaires pour activer le mode en ligne.
+- Les comptes agents peuvent voir la liste et valider/annuler les arrivées. Seul le créateur/administrateur peut ajouter ou importer des invités.
+- Pour la production, activez la confirmation e-mail, configurez les domaines autorisés et définissez une politique de sauvegarde du projet Supabase.
+- Le code d'événement est un code de partage : transmettez-le uniquement aux personnes autorisées.
